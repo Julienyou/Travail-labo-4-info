@@ -70,8 +70,8 @@ class AdderClient:
         s = socket.socket(type=socket.SOCK_DGRAM)
         s.settimeout(0.5)
         s.bind(('0.0.0.0', 5000))
-        self.__s = s
-
+        self.__s = s    
+        
     def run(self):
         handlers = {
             '/disconnect': self._disconnect,
@@ -96,7 +96,20 @@ class AdderClient:
                     print('Erreur lors de l\'exécution de la commande.')
             else:
                 print('Commande inconnue:', command, '\n')
-
+                
+    def _help(self):
+        
+        hanlers = {
+            '/disconnect': self._disconnect,
+            '/quit': self._quit,
+            '/join': self._join,
+            '/send': self._send,
+            '/clients': self._clients,
+            '/connect': self._connect,
+        }
+        for command in handlers:
+            print(command, '\n')
+            
     def _connect(self):
         try:
             s = socket.socket()
