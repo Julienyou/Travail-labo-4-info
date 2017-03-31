@@ -16,7 +16,7 @@ class AdderServer:
     def __init__(self):
         self.__s = socket.socket()
         self.__s.bind(SERVERADDRESS)
-        print('listen to', self.b, '\n')
+        print('\nEcoute sur: ', self.b, '\n')
 
     def run(self):
         self.__s.listen()
@@ -46,18 +46,17 @@ class AdderServer:
                 name = b'ok'
                 client.send(name)
                 self.clients[pseudo] = addr[0]
-                print(pseudo , ' connecté')
+                print(pseudo , 'connecté\n')
             else:
                 self.clients[a[1]] = addr[0]
-                print(a[1] , ' connecté')
-                #print(self.clients, '\n')
+                print(a[1] , 'connecté\n')
             return self.clients
         elif a[0] == 'clients':
             dicojson = json.dumps(self.clients).encode()
             client.send(dicojson)
         elif a[0] == 'disconnect':
             self.clients.pop(a[1])
-            #print(self.clients, '\n')
+            print(a[1] , 'déconnecté')
             return self.clients
         else:
             pass
@@ -99,17 +98,19 @@ class AdderClient:
                 print('Commande inconnue:', command, '\n')
                 
     def _help(self):
-        
-        hanlers = {
-            '/disconnect': self._disconnect,
-            '/quit': self._quit,
-            '/join': self._join,
-            '/send': self._send,
-            '/clients': self._clients,
-            '/connect': self._connect,
+        handlers = {
+            '/connect': 'Permet de se connecter au serveur',
+            '/clients': 'Permet de voir qui est connecté au serveur',
+            '/join': 'Permet de joindre un client pour lui parler',
+            '/send': 'Permet d\'envoyer un message',
+            '/quit': 'Permet de finir la conversation avec le client choisi',
+            '/disconnect': 'Permet de se déconnecter du serveur'
         }
+
+        print('\n')
         for command in handlers:
-            print(command, '\n')
+            print(command, ':' , handlers[command])
+        print('\n')
             
     def _connect(self):
         try:
@@ -122,12 +123,12 @@ class AdderClient:
                 totalsent += sent
             existance = s.recv(1024)
             while existance == b'existing':
-                    pseudo = input('Il y a déjà une personne ayant ce nom, veuillez entrer un pseudo:\n')
+                    pseudo = input('\nIl y a déjà une personne ayant ce nom, veuillez entrer un pseudo:\n')
                     s.send(pseudo.encode())
                     existance = s.recv(1024)
-            print('Connecté au serveur', '\n')
+            print('\nConnecté au serveur\n')
         except OSError:
-            print("Connexion échouée.", '\n')
+            print("\nConnexion échouée\n")
 
     def _disconnect(self):                    #quit everything
         try:
@@ -141,12 +142,13 @@ class AdderClient:
             self.__running = False
             self.__address = None
             s.close()
-            print('Déconnecté du serveur', '\n')
+            print('\nVous vous êtes bien déconnecté du serveur\nMerci et à bientot')
         except OSError:
-            print('Déconnexion échouée.', '\n')
+            print('\nDéconnexion échouée\n')
 
     def _quit(self):
         self.__address = None
+        print('\nConversation terminée\n')
 
     def _join(self, param):
         dico = self._client()
@@ -190,13 +192,14 @@ class AdderClient:
             while totalsent < len(msg):
                 sent = s.send(msg[totalsent:])
                 totalsent += sent
-            print('Requête réussie\n')
+            print('\nRequête réussie\n')
             time.sleep(0.5)
             dico = json.loads(s.recv(512).decode())
             for name in dico:
-                print(name, ': ', dico[name], '\n')
+                print(name, ': ', dico[name])
+            print('\n')
         except OSError:
-            print('Requête échouée:','\n')
+            print('\nRequête échouée:\n')
 
     def _client(self):
         try:
@@ -210,7 +213,7 @@ class AdderClient:
             dico = json.loads(s.recv(512).decode())
             return dico
         except OSError:
-            print('Requête échouée:','\n')
+            print('\nRequête échouée:\n')
 
     def Who(self):
         proc = subprocess.Popen(['Whoami'], stdout=subprocess.PIPE,
