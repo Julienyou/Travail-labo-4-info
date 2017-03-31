@@ -79,7 +79,8 @@ class AdderClient:
             '/join': self._join,
             '/send': self._send,
             '/clients': self._clients,
-            '/connect': self._connect
+            '/connect': self._connect,
+            '/help': self._help
         }
 
         self.__running = True
